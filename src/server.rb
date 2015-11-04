@@ -5,7 +5,8 @@ require 'net/http'
 class Server
 
 	def initialize(port)
-		@server = TCPServer.open(port)
+		@port = port
+		@server = TCPServer.open(@port)
 		@chatrooms = Hash.new
 		@clients = Hash.new
 		uri = URI('http://ipecho.net/plain')
@@ -19,7 +20,6 @@ class Server
 	end
 
 	def run
-		p "ruing"
 		count = 0
 		thread_pool = ThreadPool.new(5)
 		loop{
@@ -44,20 +44,21 @@ class Server
 			msg = input[0]
 			p input
 
-			if input[0,5] == "HELO " # handle the base test
-				arg = "#{input}" + "IP:#{$ip}\n" +
-				"Port:#{$port}" +
+			if msg[0,5] == "HELO " # handle the base test
+				arg = "#{msg}" + "IP:#{@ip}\n" +
+				"Port:#{@port}" +
 				"\nStudentID:#{student_id}"
 				c.puts (arg)
+				next
 			end
 
-			if input == "KILL_SERVICE\n"	# handle the shutdown command
+			if msg == "KILL_SERVICE\n"	# handle the shutdown command
 				c.close
 				server.close
 				raise SystemExit			
 			end
 
-			message = input.split("\n")
+			message = msg.split("\n")
 			p message
 
 		end
@@ -69,4 +70,4 @@ port = 2000
 if ARGV.length != 0 
 	port = ARGV[0]
 end
-Server.new(2000)
+Server.new(port)
