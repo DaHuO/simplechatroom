@@ -67,8 +67,6 @@ class Server
 				message_hash[temp[0].chomp] = temp[1].chomp
 			end
 
-			p message_hash
-
 			if message_hash.has_key?("JOIN_CHATROOM")
 
 				if @chatrooms.has_key?(message_hash["JOIN_CHATROOM"])
@@ -96,6 +94,7 @@ class Server
 				arg2 = "CHAT:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
 					"CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" + 
 					"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom."
+				p arg2
 				c.puts(arg2)
 
 

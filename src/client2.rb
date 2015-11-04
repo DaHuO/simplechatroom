@@ -4,10 +4,10 @@ require 'thread'
 host, port = "127.0.0.1", 2000
 
 s = TCPSocket.open(host, port)
-arg = "JOIN_CHATROOM: [chatroom namei]
-CLIENT_IP: [IP Address of client if UDP | 0 if TCP]
-PORT: [port number of client if UDP | 0 if TCP]
-CLIENT_NAME: [string Handle to identifier client user]"
+arg = "JOIN_CHATROOM: chatroom1
+CLIENT_IP: 0
+PORT: 0
+CLIENT_NAME: client1"
 puts arg
 s.puts(arg)
 # Thread.new{
