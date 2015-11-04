@@ -58,8 +58,44 @@ class Server
 				raise SystemExit			
 			end
 
-			message = msg.split("\n")
-			p message
+			message = msg.split("\n")			
+			# p message
+
+			message_hash = Hash.new
+			for line in message
+				temp =line.split(":")
+				message_hash[temp[0].chomp] = temp[1].chomp
+			end
+
+			p message_hash
+
+			if message_hash.has_key?("JOIN_CHATROOM")
+
+				if @chatrooms.has_key?(message_hash["JOIN_CHATROOM"])
+					@chatrooms[message_hash["JOIN_CHATROOM"]]["members"] << message_hash["CLIENT_NAME"]
+
+				else
+					@chatrooms[message_hash["JOIN_CHATROOM"]] = {}
+					@chatrooms[message_hash["JOIN_CHATROOM"]]["members"] = [message_hash["CLIENT_NAME"]]
+					@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"] = @chatrooms.length
+				end
+
+				if !(@clients.has_key?(message_hash["CLIENT_NAME"]))
+					p 'CLIENT_NAME'
+					join_id = @clients.length + 1
+					@clients[message_hash["CLIENT_NAME"]] = [join_id, c]
+				end
+
+				arg = "JOINED_CHATROOM:#{message_hash["JOIN_CHATROOM"]}\n" + 
+					"SERVER_IP:#{@ip}\nPORT:#{@port}\n" + 
+					"ROOM_REF:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
+					"JOIN_ID:#{@clients[message_hash["CLIENT_NAME"]][0]}\n"
+
+				c.puts(arg)
+				next
+
+			end
+
 
 		end
 	end
