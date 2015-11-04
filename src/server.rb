@@ -92,7 +92,13 @@ class Server
 					"JOIN_ID:#{@clients[message_hash["CLIENT_NAME"]][0]}\n"
 
 				c.puts(arg)
-				c.puts("#{message_hash["CLIENT_NAME"]} has joined this chatroom.")
+
+				arg2 = "CHAT:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
+					"CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" + 
+					"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom."
+				c.puts(arg2)
+
+
 				next
 
 			end
