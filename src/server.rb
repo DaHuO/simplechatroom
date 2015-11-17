@@ -9,6 +9,8 @@ class Server
 		@server = TCPServer.open(@port)
 		@chatrooms = Hash.new
 		@clients = Hash.new
+		@chatroom_ref = 0
+		@join_id = 0
 		uri = URI('http://ipecho.net/plain')
 		body = Net::HTTP.get(uri)
 		if body.length!=0
@@ -69,21 +71,27 @@ class Server
 
 			if message_hash.has_key?("JOIN_CHATROOM")
 
-				if @chatrooms.has_key?(message_hash["JOIN_CHATROOM"])
-					@chatrooms[message_hash["JOIN_CHATROOM"]]["members"] << message_hash["CLIENT_NAME"]
-
-				else
-					@chatrooms[message_hash["JOIN_CHATROOM"]] = {}
-					@chatrooms[message_hash["JOIN_CHATROOM"]]["members"] = [message_hash["CLIENT_NAME"]]
-					@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"] = @chatrooms.length
-				end
-
 				if !(@clients.has_key?(message_hash["CLIENT_NAME"]))
 					p 'CLIENT_NAME'
-					join_id = @clients.length + 1
+					@join_id += 1
+					join_id = @join_id
 					@clients[message_hash["CLIENT_NAME"]] = [join_id, c]
+				else
+					next #to be added with error code
 				end
 
+
+				if @chatrooms.has_key?(message_hash["JOIN_CHATROOM"])
+					@chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"] << message_hash["CLIENT_NAME"]
+
+				else
+					@chatroom_ref += 1
+					@chatrooms[message_hash["JOIN_CHATROOM"]] = Hash.new
+					@chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"] = Hash.new
+					@chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"] << message_hash["CLIENT_NAME"]
+					@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"] = @chatroom_ref
+				end
+			
 				arg = "JOINED_CHATROOM:#{message_hash["JOIN_CHATROOM"]}\n" + 
 					"SERVER_IP:#{@ip}\nPORT:#{@port}\n" + 
 					"ROOM_REF:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
@@ -93,12 +101,35 @@ class Server
 
 				arg2 = "CHAT:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
 					"CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" + 
-					"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom."
+					"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom.\n"
 				p arg2
-				c.puts(arg2)
-
+				for member in @chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"]
+					arg2 = "CHAT:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
+					"CLIENT_NAME:#member\n" + 
+					"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom.\n"
+					@clients[member][1].puts(arg2)
+				end
 
 				next
+
+			end
+
+			if message_hash.has_key?("LEAVE_CHATROOM")
+
+				chatroom = @chatrooms.select{|key, hash| hash["ROOM_REF"] == message_hash["LEAVE_CHATROOM"]}
+				chatroom["MEMBERS"].delete(message_hash["CLIENT_NAME"])
+
+				arg = "LEFT_CHATROOM:#{message_hash["LEAVE_CHATROOM"]}\n" + 
+					"JOIN_ID:#{message_hash["JOIN_ID"]}\n"
+				c.puts(arg)
+
+				for member in chatroom["MEMBERS"]
+					arg2 = "CHAT:#{@chatrooms[message_hash["LEAVE_CHATROOM"]]["ROOM_REF"]}\n" + 
+						"CLIENT_NAME:member\n" + 
+						"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom.\n"
+					@clients[member][1].puts(arg2)
+				end
+
 
 			end
 
