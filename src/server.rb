@@ -69,7 +69,10 @@ class Server
 				message_hash[temp[0].chomp] = temp[1].chomp
 			end
 
+			p "message_hash #{message_hash}"
+
 			if message_hash.has_key?("JOIN_CHATROOM")
+				p "JOIN_CHATROOM"
 
 				if !(@clients.has_key?(message_hash["CLIENT_NAME"]))
 					p 'CLIENT_NAME'
@@ -81,13 +84,14 @@ class Server
 				end
 
 
+
 				if @chatrooms.has_key?(message_hash["JOIN_CHATROOM"])
 					@chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"] << message_hash["CLIENT_NAME"]
 
 				else
 					@chatroom_ref += 1
 					@chatrooms[message_hash["JOIN_CHATROOM"]] = Hash.new
-					@chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"] = Hash.new
+					@chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"] = []
 					@chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"] << message_hash["CLIENT_NAME"]
 					@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"] = @chatroom_ref
 				end
