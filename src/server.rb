@@ -121,24 +121,33 @@ class Server
 			if message_hash.has_key?("LEAVE_CHATROOM")
 
 				p "LEAVE_CHATROOM"
+				chatroom_name =""
 
-				chatroom = @chatrooms.select{|key, hash| hash["ROOM_REF"] == message_hash["LEAVE_CHATROOM"]}
 				for chatroom in @chatrooms.keys
-					if @chatrooms[chatroom]["ROOM_REF"] == message_hash["LEAVE_CHATROOM"]
-						chatroom["MEMBERS"].delete(message_hash["CLIENT_NAME"])
+					p chatroom
+					if @chatrooms[chatroom]["ROOM_REF"].to_s == message_hash["LEAVE_CHATROOM"]
+						chatroom_name = chatroom
+						@chatrooms[chatroom]["MEMBERS"].delete(message_hash["CLIENT_NAME"])
 						p "member deleted"
+						break
 					end
 				end
 				# chatroom["MEMBERS"].delete(message_hash["CLIENT_NAME"])
-
 				arg = "LEFT_CHATROOM:#{message_hash["LEAVE_CHATROOM"]}\n" + 
 					"JOIN_ID:#{message_hash["JOIN_ID"]}\n"
+				p arg
+
 				c.puts(arg)
 
-				for member in chatroom["MEMBERS"]
-					arg2 = "CHAT:#{@chatrooms[message_hash["LEAVE_CHATROOM"]]["ROOM_REF"]}\n" + 
+				for member in @chatrooms[chatroom_name]["MEMBERS"]
+					p member
+					p @clients[member]
+					p @chatrooms[chatroom_name]["ROOM_REF"]
+					p message_hash["CLIENT_NAME"]
+					arg2 = "CHAT:#{@chatrooms[chatroom_name]["ROOM_REF"]}\n" + 
 						"CLIENT_NAME:member\n" + 
-						"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom.\n"
+						"MESSAGE:#{message_hash["CLIENT_NAME"]} has left this chatroom.\n"
+					p "arg#{arg2}"
 					@clients[member][1].puts(arg2)
 				end
 

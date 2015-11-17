@@ -8,11 +8,21 @@ arg = "JOIN_CHATROOM: chatroom1
 CLIENT_IP: 0
 PORT: 0
 CLIENT_NAME: client1"
-puts arg
 s.puts(arg)
 # Thread.new{
+i = 0
+while i < 5
+	line = s.gets
+	puts line
+	i +=1
+end
+# }
+arg = "LEAVE_CHATROOM: 1
+JOIN_ID: 1
+CLIENT_NAME: client1"
+s.puts(arg)
 while line = s.gets
 	puts line
 end
-# }
+
 # puts s
