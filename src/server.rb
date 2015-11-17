@@ -66,7 +66,7 @@ class Server
 			message_hash = Hash.new
 			for line in message
 				temp =line.split(":")
-				message_hash[temp[0].chomp] = temp[1].chomp
+				message_hash[temp[0].strip] = temp[1].strip
 			end
 
 			p "message_hash #{message_hash}"
@@ -120,8 +120,16 @@ class Server
 
 			if message_hash.has_key?("LEAVE_CHATROOM")
 
+				p "LEAVE_CHATROOM"
+
 				chatroom = @chatrooms.select{|key, hash| hash["ROOM_REF"] == message_hash["LEAVE_CHATROOM"]}
-				chatroom["MEMBERS"].delete(message_hash["CLIENT_NAME"])
+				for chatroom in @chatrooms.keys
+					if @chatrooms[chatroom]["ROOM_REF"] == message_hash["LEAVE_CHATROOM"]
+						chatroom["MEMBERS"].delete(message_hash["CLIENT_NAME"])
+						p "member deleted"
+					end
+				end
+				# chatroom["MEMBERS"].delete(message_hash["CLIENT_NAME"])
 
 				arg = "LEFT_CHATROOM:#{message_hash["LEAVE_CHATROOM"]}\n" + 
 					"JOIN_ID:#{message_hash["JOIN_ID"]}\n"
