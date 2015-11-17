@@ -109,7 +109,7 @@ class Server
 				p arg2
 				for member in @chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"]
 					arg2 = "CHAT:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
-					"CLIENT_NAME:#member\n" + 
+					"CLIENT_NAME:#{member}\n" + 
 					"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom.\n"
 					@clients[member][1].puts(arg2)
 				end
