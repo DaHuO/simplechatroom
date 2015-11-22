@@ -24,6 +24,7 @@ class Server
 	def run
 		count = 0
 		thread_pool = ThreadPool.new(5)
+		p 'hi there'
 		loop{
 			client = @server.accept
 			thread_pool.schedule(client) do |c|
@@ -41,10 +42,12 @@ class Server
 		p "handle_client"
 		student_id = 'oldk'
 
+		# while input = c.recv(1000)
 		while input = c.recvmsg
-			p c.remote_address.ip_address
+
 			msg = input[0]
-			p input
+			puts "incoming msg is #{msg}"
+			# msg = input
 
 			if msg[0,5] == "HELO " # handle the base test
 				arg = "#{msg}" + "IP:#{@ip}\n" +
@@ -61,15 +64,12 @@ class Server
 			end
 
 			message = msg.split("\n")			
-			# p message
 
 			message_hash = Hash.new
 			for line in message
 				temp =line.split(":")
 				message_hash[temp[0].strip] = temp[1].strip
 			end
-
-			p "message_hash #{message_hash}"
 
 			if message_hash.has_key?("JOIN_CHATROOM")
 				p "JOIN_CHATROOM"
@@ -103,14 +103,10 @@ class Server
 
 				c.puts(arg)
 
-				arg2 = "CHAT:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
-					"CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" + 
-					"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom.\n"
-				p arg2
 				for member in @chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"]
 					arg2 = "CHAT:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
 					"CLIENT_NAME:#{member}\n" + 
-					"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom.\n"
+					"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom.\n\n"
 					@clients[member][1].puts(arg2)
 				end
 
@@ -132,7 +128,6 @@ class Server
 						break
 					end
 				end
-				# chatroom["MEMBERS"].delete(message_hash["CLIENT_NAME"])
 				arg = "LEFT_CHATROOM:#{message_hash["LEAVE_CHATROOM"]}\n" + 
 					"JOIN_ID:#{message_hash["JOIN_ID"]}\n"
 				p arg
@@ -150,7 +145,7 @@ class Server
 					p "arg#{arg2}"
 					@clients[member][1].puts(arg2)
 				end
-
+				next
 
 			end
 
