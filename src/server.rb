@@ -150,6 +150,26 @@ class Server
 
 			end
 
+			if message_hash.has_key?("CHAT")
+				chatroom_name = ""
+				for chatroom in @chatrooms.keys
+					p chatroom
+					if @chatrooms[chatroom]["ROOM_REF"].to_s == message_hash["CHAT"]
+						chatroom_name = chatroom
+						break
+					end
+				end
+
+				arg = "CAHT:#{message_hash["CHAT"]}\n" + 
+					"CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" + 
+					"MESSAGE:#{message_hash["MESSAGE"]}"
+
+				for member in @chatrooms[chatroom_name]["MEMBERS"]
+					@clients[member][1].puts(arg)
+				end
+
+			end
+
 
 		end
 	end
