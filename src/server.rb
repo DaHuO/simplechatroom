@@ -30,7 +30,7 @@ class Server
 			thread_pool.schedule(client) do |c|
 				p "into thread pool"
 				count += 1
-				handle_client(c, count, @server)
+				handle_client(c, count, @server, thread_pool)
 				p "hi there"
 			end
 		}
@@ -38,7 +38,7 @@ class Server
 
 	end
 
-	def handle_client(c, count, server)
+	def handle_client(c, count, server, thread_pool)
 		p "handle_client"
 		student_id = 'oldk'
 
@@ -62,6 +62,7 @@ class Server
 			if msg == "KILL_SERVICE\n"	# handle the shutdown command
 				c.close
 				server.close
+				at_exit { thread_pool.shutdown }
 				raise SystemExit
 			end
 

@@ -5,12 +5,14 @@ class ThreadPool
 		@size = size
 		@jobs = Queue.new
 
-		Array.new(@size) do |i|
+		@pool = Array.new(@size) do |i|
 			Thread.new {
 				Thread.current[:id] = i
-				loop do
-					args, job = @jobs.pop
-					job.call(*args)
+				catch(:exit) do
+					loop do
+						args, job = @jobs.pop
+						job.call(*args)
+					end
 				end
 			}
 		end
@@ -18,6 +20,14 @@ class ThreadPool
 
 	def schedule(*args, &block)
 		@jobs << [args, block]
+	end
+
+	def shutdown
+		@size.times do
+			schedule{throw :exit}
+		end
+
+		@pool.map(&:join)
 	end
 
 end
