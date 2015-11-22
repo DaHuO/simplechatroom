@@ -23,7 +23,7 @@ class Server
 
 	def run
 		count = 0
-		thread_pool = ThreadPool.new(5)
+		thread_pool = ThreadPool.new(10)
 		p 'hi there'
 		loop{
 			client = @server.accept
@@ -62,10 +62,10 @@ class Server
 			if msg == "KILL_SERVICE\n"	# handle the shutdown command
 				c.close
 				server.close
-				raise SystemExit			
+				raise SystemExit
 			end
 
-			message = msg.split("\n")			
+			message = msg.split("\n")
 
 			message_hash = Hash.new
 			for line in message
@@ -162,7 +162,7 @@ class Server
 
 				arg = "CHAT:#{message_hash["CHAT"]}\n" + 
 					"CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" + 
-					"MESSAGE:#{message_hash["MESSAGE"]}"
+					"MESSAGE:#{message_hash["MESSAGE"]}\n\n"
 
 				puts "gets message for chatroom #{chatroom_name}:\n"
 				puts message_hash["MESSAGE"]
@@ -185,14 +185,14 @@ class Server
 						for member in @chatrooms[chatroom]["MEMBERS"]
 							@clients[member][1].puts(arg)
 						end
-						@chatrooms[chatroom].delete(message_hash["CLIENT_NAME"])
+						@chatrooms[chatroom]["MEMBERS"].delete(message_hash["CLIENT_NAME"])
 					end
 
 				end
 
-				c.close()
+				c.close
 				@clients.delete(message_hash["CLIENT_NAME"])
-				
+
 				next
 
 			end
