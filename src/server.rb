@@ -160,9 +160,12 @@ class Server
 					end
 				end
 
-				arg = "CAHT:#{message_hash["CHAT"]}\n" + 
+				arg = "CHAT:#{message_hash["CHAT"]}\n" + 
 					"CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" + 
 					"MESSAGE:#{message_hash["MESSAGE"]}"
+
+				puts "gets message for chatroom #{chatroom_name}:\n"
+				puts message_hash["MESSAGE"]
 
 				for member in @chatrooms[chatroom_name]["MEMBERS"]
 					@clients[member][1].puts(arg)
