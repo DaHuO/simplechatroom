@@ -141,6 +141,11 @@ class Server
 					puts "send #{member} the left message.\n"
 					@clients[member][1].puts(arg2)
 				end
+
+				arg3 = "CHAT:#{@chatrooms[chatroom_name]["ROOM_REF"]}\n" +
+                    "CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" +
+                    "MESSAGE:#{message_hash["CLIENT_NAME"]} has left this chatroom.\n\n"
+                c.puts arg3
 				next
 
 			end
