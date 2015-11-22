@@ -46,7 +46,9 @@ class Server
 		while input = c.recvmsg
 
 			msg = input[0]
-			puts "incoming msg is #{msg}"
+			if msg.length !=0
+				puts "incoming msg is #{msg}"
+			end
 			# msg = input
 
 			if msg[0,5] == "HELO " # handle the base test
@@ -79,11 +81,7 @@ class Server
 					@join_id += 1
 					join_id = @join_id
 					@clients[message_hash["CLIENT_NAME"]] = [join_id, c]
-				else
-					next #to be added with error code
 				end
-
-
 
 				if @chatrooms.has_key?(message_hash["JOIN_CHATROOM"])
 					@chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"] << message_hash["CLIENT_NAME"]
@@ -103,10 +101,11 @@ class Server
 
 				c.puts(arg)
 
-				for member in @chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"]
-					arg2 = "CHAT:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
-					"CLIENT_NAME:#{member}\n" + 
+				arg2 = "CHAT:#{@chatrooms[message_hash["JOIN_CHATROOM"]]["ROOM_REF"]}\n" + 
+					"CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" + 
 					"MESSAGE:#{message_hash["CLIENT_NAME"]} has joined this chatroom.\n\n"
+
+				for member in @chatrooms[message_hash["JOIN_CHATROOM"]]["MEMBERS"]
 					@clients[member][1].puts(arg2)
 				end
 
@@ -134,15 +133,12 @@ class Server
 
 				c.puts(arg)
 
+				arg2 = "CHAT:#{@chatrooms[chatroom_name]["ROOM_REF"]}\n" + 
+					"CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" + 
+					"MESSAGE:#{message_hash["CLIENT_NAME"]} has left this chatroom.\n\n"
+
 				for member in @chatrooms[chatroom_name]["MEMBERS"]
-					p member
-					p @clients[member]
-					p @chatrooms[chatroom_name]["ROOM_REF"]
-					p message_hash["CLIENT_NAME"]
-					arg2 = "CHAT:#{@chatrooms[chatroom_name]["ROOM_REF"]}\n" + 
-						"CLIENT_NAME:member\n" + 
-						"MESSAGE:#{message_hash["CLIENT_NAME"]} has left this chatroom.\n"
-					p "arg#{arg2}"
+					puts "send #{member} the left message.\n"
 					@clients[member][1].puts(arg2)
 				end
 				next
