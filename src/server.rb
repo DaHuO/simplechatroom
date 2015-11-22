@@ -171,6 +171,28 @@ class Server
 					@clients[member][1].puts(arg)
 				end
 
+				next
+
+			end
+
+			if message_hash.has_key?("DISCONNECT")
+				for chatroom in @chatrooms.keys
+					if @chatrooms[chatroom].has_key?(message_hash["CLIENT_NAME"])
+						arg = "CHAT:#{@chatrooms[chatroom]["ROOM_REF"]}\n" +
+							"CLIENT_NAME:#{message_hash["CLIENT_NAME"]}\n" + 
+							"MESSAGE:#{message_hash["CLIENT_NAME"]} has left this chatroom.\n\n"
+						for member in @chatrooms[chatroom]["MEMBERS"]
+							@clients[member][1].puts(arg)
+						end
+						@chatrooms[chatroom].delete(message_hash["CLIENT_NAME"])
+					end
+
+				end
+				c.close()
+				@clients.delete(message_hash["CLIENT_NAME"])
+
+				next
+
 			end
 
 
